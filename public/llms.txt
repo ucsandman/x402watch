@@ -1,0 +1,24 @@
+# x402watch
+
+x402watch checks x402 paid API listings on the Coinbase Bazaar and x402scan directories and reports which ones actually answer.
+
+## What it is
+
+A ranked table of x402 paid endpoints, probed unpaid every six hours. Each endpoint gets a score out of 100 based on uptime, latency, whether the live price matches the declared price, and listing completeness.
+
+## Who it is for
+
+Agent builders choosing which x402 endpoint to wire into a paying agent, and sellers who listed an endpoint and want to see how it scores.
+
+## What it does
+
+Pulls every resource from the Bazaar discovery API and x402scan, merged by URL. Sends one unpaid request per endpoint with the listed method and example body. A healthy paid endpoint answers 402 with a PAYMENT-REQUIRED header; the live price is read from that header. Keeps the last 30 probes per endpoint. Score out of 100: uptime counts 60, median latency 15, declared price matching live price 15, listing completeness 10. Probes identify as x402watch/1 and never pay.
+
+## Pages
+
+- / : the ranked table of all probed endpoints, with search and status filters
+- /api/feed : the same rows as JSON. Params: q (substring match on URL or description), status (paywalled, down, error, free, drift), limit (1 to 1000, default 100), offset (default 0)
+
+## Source
+
+https://github.com/ucsandman/x402watch
