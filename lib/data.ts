@@ -63,5 +63,7 @@ export function networkLabel(n?: string) {
 export function usd(amount?: string) {
   if (!amount) return '';
   const n = Number(amount) / 1e6;
-  return n >= 1 ? `$${n.toFixed(2)}` : `$${n.toFixed(4).replace(/0+$/, '').replace(/\.$/, '.0')}`;
+  if (n >= 1) return `$${n.toFixed(2)}`;
+  const s = n.toFixed(4).replace(/0+$/, '');
+  return `$${s.length < 4 ? n.toFixed(2) : s}`; // at least two decimals: $0.10, $0.005, $0.0025
 }
