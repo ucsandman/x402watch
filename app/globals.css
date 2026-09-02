@@ -1,0 +1,93 @@
+@import "tailwindcss";
+
+/* Assay office: mid-tone grey-green ground, paper strips, punch tape, brass score. */
+:root {
+  --ground: #c6ccc0;
+  --ground-deep: #aeb5a8;
+  --paper: #f7f3e8;
+  --paper-edge: #d9d2bf;
+  --ink: #141b22;
+  --ink-soft: #4a5560;
+  --ok: #1e6b4f;
+  --bad: #b23a2b;
+  --warn: #8a5a00;
+  --brass: #f0b429;
+}
+
+@theme inline {
+  --color-ground: var(--ground);
+  --color-ground-deep: var(--ground-deep);
+  --color-paper: var(--paper);
+  --color-paper-edge: var(--paper-edge);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ok: var(--ok);
+  --color-bad: var(--bad);
+  --color-warn: var(--warn);
+  --color-brass: var(--brass);
+  --font-display: var(--font-unbounded);
+  --font-sans: var(--font-plex-sans);
+  --font-mono: var(--font-plex-mono);
+}
+
+html {
+  color-scheme: light;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-plex-sans), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* Punch tape: one cell per probe, oldest left. Filled = answered 402. */
+.tape {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 6px;
+  gap: 2px;
+  height: 14px;
+  align-items: center;
+}
+.tape i {
+  display: block;
+  width: 6px;
+  height: 10px;
+  border-radius: 1px;
+  background: var(--paper-edge);
+}
+.tape i[data-s="ok"] {
+  background: var(--ok);
+}
+.tape i[data-s="down"] {
+  background: var(--bad);
+}
+.tape i[data-s="free"],
+.tape i[data-s="error"] {
+  background: var(--warn);
+  height: 6px;
+}
+
+.strip {
+  background: var(--paper);
+  box-shadow: 0 1px 0 var(--paper-edge), 0 2px 0 var(--ground-deep);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .strip {
+    transition: transform 120ms ease;
+  }
+  .strip:hover {
+    transform: translateX(2px);
+  }
+}

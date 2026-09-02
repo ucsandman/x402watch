@@ -1,0 +1,7 @@
+# Decisions
+
+- **2026-09-01 — Git is the database.** The probe runs in a GitHub Actions cron, commits `data/latest.json` and `data/history.json`, and Vercel redeploys on push. No Postgres, no KV, no new external service. History is capped at 30 probes per endpoint (about a week at six-hour cadence) so the files stay in the low tens of MB. Move to a real store only if the cadence needs to drop under an hour or history needs to outlive a week.
+- **2026-09-01 — Unpaid probes only.** One request without payment per endpoint per run. The 402 challenge carries everything the score needs (live price, reachability, latency). Paying to verify the response body would cost real USDC across 15k endpoints and is a different product.
+- **2026-09-01 — Bazaar payer counts are shown, not scored.** `l30DaysUniquePayers` is Coinbase's number and only exists for CDP-facilitated resources. It is social proof beside the score, not part of it, so endpoints on other facilitators are not penalized.
+- **2026-09-01 — Node 24 runs the probe as plain TypeScript.** `node scripts/probe.ts` with `.ts` import specifiers and `allowImportingTsExtensions`; no tsx, no build step for the cron.
+- **2026-09-01 — Visual direction: assay office.** Mid-tone grey-green ground, paper strips per endpoint, a punch-tape strip of the last 30 probes as the signature element, brass-to-red score. Unbounded for the wordmark and headline, IBM Plex Sans body, IBM Plex Mono for every number.
