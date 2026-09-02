@@ -36,7 +36,8 @@ export async function crawlBazaar(pageSize = 100, max = Infinity): Promise<Targe
 }
 
 // x402scan: tRPC search with an empty query returns everything up to limit.
-export async function crawlScan(limit = 100000): Promise<Target[]> {
+// ponytail: 20000 is the largest limit the endpoint accepts (100000 returns 500); paginate if x402scan outgrows it.
+export async function crawlScan(limit = 20000): Promise<Target[]> {
   const input = encodeURIComponent(JSON.stringify({ json: { search: '', limit } }));
   const res = await fetch(`${SCAN}?input=${input}`, { signal: AbortSignal.timeout(30000) });
   if (!res.ok) throw new Error(`x402scan ${res.status}`);

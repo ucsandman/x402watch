@@ -20,7 +20,9 @@ export async function probe(t: Target, timeoutMs = 8000): Promise<Probe> {
     const hdr = res.headers.get('payment-required');
     if (hdr) {
       try {
-        p = JSON.parse(Buffer.from(hdr, 'base64').toString()).accepts?.[0]?.amount;
+        // Compare like with like: the live option on the listed network, else the first one.
+        const accepts: Array<{ network?: string; amount?: string }> = JSON.parse(Buffer.from(hdr, 'base64').toString()).accepts ?? [];
+        p = (accepts.find((a) => a.network === t.network) ?? accepts[0])?.amount;
       } catch {
         // not a v2 challenge header
       }

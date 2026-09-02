@@ -146,9 +146,9 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <span>Endpoint</span>
           <span>Price · network</span>
           <span>Latency</span>
-          <span>30d</span>
+          <span>Payers 30d</span>
           <span>Uptime</span>
-          <span>Last {Math.min(30, Math.max(...feed.rows.map((r) => r.checks), 1))} probes</span>
+          <span>Last 30 probes</span>
         </div>
         {pg.rows.length === 0 ? (
           <p className="strip px-4 py-8 text-center text-ink-soft">
