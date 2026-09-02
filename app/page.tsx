@@ -47,14 +47,14 @@ function Strip({ r }: { r: Row }) {
         {r.score}
       </span>
       <span className="min-w-0">
-        <a href={r.url} rel="noopener nofollow" className="font-mono text-[13px] break-all hover:underline">
+        <a href={r.url} rel="noopener nofollow" className="font-mono text-sm md:text-[13px] break-all hover:underline">
           <span className="text-ink-soft">{u.host}</span>
           {u.pathname}
           {u.search}
         </a>
         {r.description && <span className="block text-ink-soft truncate">{r.description}</span>}
       </span>
-      <span className="font-mono text-[13px] col-start-2 md:col-start-auto">
+      <span className="font-mono text-sm md:text-[13px] col-start-2 md:col-start-auto">
         {r.priceDrift ? (
           <span className="text-bad">
             <s className="text-ink-soft">{usd(r.declaredAmount)}</s> {usd(r.livePrice)}
@@ -66,12 +66,12 @@ function Strip({ r }: { r: Row }) {
       </span>
       <span className="col-start-2 flex flex-wrap gap-x-4 md:contents">
         <span
-          className="font-mono text-[13px]"
+          className="font-mono text-sm md:text-[13px]"
           style={{ color: cls === 'paywalled' ? 'var(--ink-soft)' : cls === 'down' ? 'var(--bad)' : 'var(--warn)' }}
         >
           {cls === 'paywalled' ? `${r.medianMs} ms` : STATUS_LABEL[cls]}
         </span>
-        <span className="font-mono text-[13px]">
+        <span className="font-mono text-sm md:text-[13px]">
           {r.payers30d !== undefined ? (
             <>
               {r.payers30d.toLocaleString()}
@@ -83,7 +83,7 @@ function Strip({ r }: { r: Row }) {
             </span>
           )}
         </span>
-        <span className="font-mono text-[13px]">
+        <span className="font-mono text-sm md:text-[13px]">
           {Math.round(r.uptime * 100)}%<span className="md:hidden text-ink-soft"> up</span>
         </span>
       </span>
@@ -112,7 +112,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
         <Link href="/" className="font-display text-xl font-black tracking-tight">
           x402watch
         </Link>
-        <nav className="font-mono text-[13px] flex gap-5">
+        <nav className="font-mono text-sm md:text-[13px] flex gap-5">
           <a href="/api/feed" className="hover:underline">
             /api/feed
           </a>
@@ -135,12 +135,12 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           price a seller wrote down. This tells you whether the endpoint is reachable, whether it charges what it
           declared, and how fast it answers. Ranked by an assay score out of 100.
         </p>
-        <p className="mt-3 font-mono text-[13px] text-ink-soft">
+        <p className="mt-3 font-mono text-sm md:text-[13px] text-ink-soft">
           Last check {checked.toISOString().replace('T', ' ').slice(0, 16)} UTC · {feed.count.toLocaleString()} probed
         </p>
       </section>
 
-      <section className="mt-8 md:mt-10 flex flex-wrap gap-2 font-mono text-[13px]" aria-label="Filter">
+      <section className="mt-8 md:mt-10 flex flex-wrap gap-2 font-mono text-sm md:text-[13px]" aria-label="Filter">
         {(['paywalled', 'down', 'error', 'free', 'drift'] as const).map((k) => (
           <Link
             key={k}
@@ -198,7 +198,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           </ol>
         )}
         {pg.pages > 1 && (
-          <nav className="mt-6 flex flex-wrap items-center justify-between gap-3 font-mono text-[13px]" aria-label="Pages">
+          <nav className="mt-6 flex flex-wrap items-center justify-between gap-3 font-mono text-sm md:text-[13px]" aria-label="Pages">
             <span>
               {pg.total.toLocaleString()} endpoints · page {pg.current} of {pg.pages}
             </span>
@@ -235,7 +235,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           <span className="text-ink font-medium">Sellers:</span> fix the listing at the source and the next check picks
           it up.
         </p>
-        <p className="mt-3 font-mono text-[13px]">
+        <p className="mt-3 font-mono text-sm md:text-[13px]">
           JSON for agents:{' '}
           <a href="/api/feed?limit=50" className="underline">
             /api/feed
