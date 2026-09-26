@@ -1,6 +1,6 @@
 # x402watch
 
-x402watch checks x402 paid API listings on the Coinbase Bazaar and x402scan directories and reports which ones actually answer.
+x402watch checks x402 paid API listings on the Coinbase Bazaar, PayAI and x402scan directories and reports which ones actually answer.
 
 ## What it is
 
@@ -12,7 +12,7 @@ Agent builders choosing which x402 endpoint to wire into a paying agent, and sel
 
 ## What it does
 
-Pulls every resource from the Bazaar discovery API and x402scan, merged by URL. Sends one unpaid request per endpoint with the listed method and example body. A healthy paid endpoint answers 402 with a PAYMENT-REQUIRED header; the live price is read from that header. Keeps the last 30 probes per endpoint. Score out of 100: uptime counts 60, median latency 15, declared price matching live price 15, listing completeness 10. Probes identify as x402watch/1 and never pay.
+Pulls every resource from the Bazaar and PayAI discovery APIs and x402scan, merged by URL. Sends one unpaid request per endpoint with the listed method and example body. A healthy paid endpoint answers 402 with a PAYMENT-REQUIRED header; the live price is read from that header. Keeps the last 30 probes per endpoint. Score out of 100: uptime counts 60, median latency 15, declared price matching live price 15, listing completeness 10. Probes identify as x402watch/1 and never pay.
 
 ## Pages
 
