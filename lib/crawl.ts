@@ -1,25 +1,36 @@
 import type { Source, Target } from './types';
 
 const BAZAAR = 'https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources';
+const PAYAI = 'https://facilitator.payai.network/discovery/resources';
 const SCAN = 'https://www.x402scan.com/api/trpc/public.resources.search';
 
 // Coinbase x402 Bazaar: offset-paginated, public, no key.
-export async function crawlBazaar(pageSize = 100, max = Infinity): Promise<Target[]> {
+export function crawlBazaar(pageSize = 100, max = Infinity): Promise<Target[]> {
+  return crawlDiscovery(BAZAAR, 'bazaar', pageSize, max);
+}
+
+// PayAI facilitator discovery: same /discovery/resources shape as the Bazaar, public, no key.
+export function crawlPayai(pageSize = 100, max = Infinity): Promise<Target[]> {
+  return crawlDiscovery(PAYAI, 'payai', pageSize, max);
+}
+
+async function crawlDiscovery(base: string, source: Source, pageSize: number, max: number): Promise<Target[]> {
   const out: Target[] = [];
   for (let offset = 0; offset < max; offset += pageSize) {
-    const res = await fetch(`${BAZAAR}?limit=${pageSize}&offset=${offset}`, { signal: AbortSignal.timeout(30000) });
-    if (!res.ok) throw new Error(`bazaar ${res.status}`);
+    const res = await fetch(`${base}?limit=${pageSize}&offset=${offset}`, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error(`${source} ${res.status}`);
     const j = await res.json();
     for (const it of j.items ?? []) {
       const info = it.metadata?.bazaar?.info ?? it.extensions?.bazaar?.info;
-      const input = info?.input;
+      // PayAI also puts the method and example body in a top-level inputSchema when there is no bazaar extension.
+      const input = info?.input ?? it.inputSchema;
       const accept = it.accepts?.[0];
       out.push({
         url: it.resource,
-        sources: ['bazaar'],
+        sources: [source],
         method: input?.method === 'POST' ? 'POST' : 'GET',
         body: input?.body,
-        description: it.description,
+        description: it.description ?? accept?.description,
         declaredAmount: accept?.amount ?? accept?.maxAmountRequired,
         network: accept?.network,
         payTo: accept?.payTo,
