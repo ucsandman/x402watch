@@ -10,10 +10,10 @@ A listing is a seller's claim. Agents that pay per call need to know, before the
 
 ## How it works
 
-1. `lib/crawl.ts` pulls every resource from the Bazaar discovery API (offset paginated, no key) and x402scan (tRPC search), merged by URL.
+1. `lib/crawl.ts` pulls resources from the Bazaar discovery API (offset paginated, no key) and x402scan (`public.resources.list.paginated`, 100 rows per page), merged by URL. The x402scan crawl preserves the search catalog's filters and checks page counts, resource IDs, and the reported total before accepting the result.
 2. `lib/probe.ts` sends one unpaid request per endpoint with the listed method and example body. A healthy paid endpoint answers `402` with a `PAYMENT-REQUIRED` header; the live price is read from that header.
 3. `lib/score.ts` keeps the last 30 probes per endpoint and scores 0 to 100: uptime (60), median latency (15), declared price matches live price (15), listing completeness (10).
-4. `scripts/probe.ts` runs the above and writes `data/latest.json` and `data/history.json`. A GitHub Actions cron commits the result; Vercel redeploys on push.
+4. `scripts/probe.ts` runs the above and writes `data/latest.json` and `data/history.json`. A failed or incomplete x402scan crawl aborts the run before probing or changing either file. A GitHub Actions cron commits the result; Vercel redeploys on push.
 5. The page reads `data/latest.json` at build time. `/api/feed` serves the same rows as JSON.
 
 ## Run it
@@ -26,6 +26,10 @@ npm run dev           # http://localhost:3000
 ```
 
 No environment variables. No database.
+
+`npm test` runs fixture-only scoring and crawl regressions without contacting catalogs or paid endpoints. `npm run lint`, `npx tsc --noEmit`, and `npm run build` check the application. The build downloads Google Fonts.
+
+The x402scan API caches pages independently and does not expose a snapshot token or a unique sort tie-breaker. Detected gaps, repeats, or changing counts fail the crawl; a successful crawl is not proof of a transactional snapshot of a changing catalog. See [the issue #1 crawl contract](docs/issue-1/TASK_CONTRACT.md).
 
 ## API
 

@@ -1,7 +1,7 @@
 import type { Source, Target } from './types';
 
 const BAZAAR = 'https://api.cdp.coinbase.com/platform/v2/x402/discovery/resources';
-const SCAN = 'https://www.x402scan.com/api/trpc/public.resources.search';
+const SCAN = 'https://www.x402scan.com/api/trpc/public.resources.list.paginated';
 
 // Coinbase x402 Bazaar: offset-paginated, public, no key.
 export async function crawlBazaar(pageSize = 100, max = Infinity): Promise<Target[]> {
@@ -35,15 +35,55 @@ export async function crawlBazaar(pageSize = 100, max = Infinity): Promise<Targe
   return out;
 }
 
-// x402scan: tRPC search with an empty query returns everything up to limit.
-// ponytail: 20000 is the largest limit the endpoint accepts (100000 returns 500); paginate if x402scan outgrows it.
-export async function crawlScan(limit = 20000): Promise<Target[]> {
-  const input = encodeURIComponent(JSON.stringify({ json: { search: '', limit } }));
-  const res = await fetch(`${SCAN}?input=${input}`, { signal: AbortSignal.timeout(30000) });
-  if (!res.ok) throw new Error(`x402scan ${res.status}`);
-  const items: Array<Record<string, unknown>> = (await res.json()).result?.data?.json ?? [];
+// x402scan: public tRPC pagination, with the same membership as empty-query search.
+// Pages are not a snapshot; reject observable changes instead of publishing a partial crawl.
+export async function crawlScan(pageSize = 100): Promise<Target[]> {
+  if (!Number.isSafeInteger(pageSize) || pageSize <= 0) throw new Error('x402scan invalid page size');
+  const items: Array<Record<string, unknown>> = [];
+  const ids = new Set<string>();
+  let total: number | undefined;
+  for (let page = 0; ; page++) {
+    const input = encodeURIComponent(JSON.stringify({ json: {
+      pagination: { page, page_size: pageSize },
+      sorting: { id: 'lastUpdated', desc: false },
+      where: {
+        excluded: { is: null },
+        OR: [
+          { accepts: { some: {} } },
+          { metadata: { path: ['authMode'], equals: 'siwx' } },
+          { metadata: { path: ['authMode'], equals: 'unprotected' } },
+          { metadata: { path: ['authMode'], equals: 'apiKey' } },
+        ],
+      },
+    } }));
+    const res = await fetch(`${SCAN}?input=${input}`, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error(`x402scan ${res.status}`);
+    const envelope = await res.json();
+    const data = envelope?.result?.data?.json;
+    if (envelope?.error || !data || !Array.isArray(data.items) || data.page !== page
+      || !Number.isSafeInteger(data.total_count) || data.total_count < 0
+      || data.total_pages !== Math.ceil(data.total_count / pageSize)) {
+      throw new Error(`x402scan invalid page ${page}`);
+    }
+    if (total !== undefined && data.total_count !== total) throw new Error(`x402scan total changed on page ${page}`);
+    total = data.total_count as number;
+    if (data.hasNextPage !== (page + 1 < data.total_pages)
+      || data.items.length !== Math.min(pageSize, total - page * pageSize)) {
+      throw new Error(`x402scan incomplete or inconsistent page ${page}`);
+    }
+    for (const it of data.items) {
+      if (!it || typeof it.id !== 'string' || !it.id || typeof it.resource !== 'string' || !it.resource) {
+        throw new Error(`x402scan invalid resource on page ${page}`);
+      }
+      if (ids.has(it.id)) throw new Error(`x402scan duplicate resource ${it.id} on page ${page}`);
+      ids.add(it.id);
+      items.push(it);
+    }
+    if (!data.hasNextPage) break;
+  }
+  if (ids.size !== total) throw new Error('x402scan incomplete resource total');
   return items.map((it) => {
-    const accept = (it.accepts as Array<Record<string, string>> | undefined)?.[0];
+    const accept = (it.accepts as Array<Record<string, string>> | undefined)?.find((a) => a.payTo !== '');
     return {
       url: String(it.resource),
       sources: ['x402scan' as Source],
