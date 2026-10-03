@@ -131,7 +131,7 @@ export default async function Home({ searchParams }: { searchParams: SearchParam
           the last check.
         </h1>
         <p className="mt-5 text-base md:text-lg leading-relaxed text-ink-soft max-w-[62ch] text-pretty">
-          Every x402 endpoint on the Coinbase Bazaar and x402scan, probed unpaid every six hours. A listing tells you the
+          Every x402 endpoint on the Coinbase Bazaar, PayAI and x402scan, probed unpaid every six hours. A listing tells you the
           price a seller wrote down. This tells you whether the endpoint is reachable, whether it charges what it
           declared, and how fast it answers. Ranked by an assay score out of 100.
         </p>
