@@ -11,10 +11,7 @@ const max = maxArg > -1 ? Number(process.argv[maxArg + 1]) : Infinity;
 
 const [bazaar, scan] = await Promise.all([
   crawlBazaar(100, max),
-  crawlScan().catch((e: Error) => {
-    console.error('x402scan crawl failed:', e.message);
-    return [];
-  }),
+  crawlScan(),
 ]);
 const targets = mergeTargets(bazaar, scan).slice(0, max);
 console.log(`crawled bazaar=${bazaar.length} x402scan=${scan.length} unique=${targets.length}`);
