@@ -43,17 +43,22 @@ export async function crawlScan(limit = 20000): Promise<Target[]> {
   if (!res.ok) throw new Error(`x402scan ${res.status}`);
   const items: Array<Record<string, unknown>> = (await res.json()).result?.data?.json ?? [];
   return items.map((it) => {
-    const accept = (it.accepts as Array<Record<string, string>> | undefined)?.[0];
+    const accept = (it.accepts as Array<Record<string, unknown>> | undefined)?.[0];
+    const schema = accept?.outputSchema as
+      | { input?: { body?: unknown; queryParams?: unknown }; output?: { example?: unknown } }
+      | null
+      | undefined;
     return {
       url: String(it.resource),
       sources: ['x402scan' as Source],
       method: it.method === 'POST' ? 'POST' : 'GET',
+      body: schema?.input?.body,
       description: (it.metadata as { description?: string } | null)?.description,
-      declaredAmount: accept?.maxAmountRequired ?? accept?.amount,
-      network: accept?.network,
-      payTo: accept?.payTo,
-      hasInputExample: false,
-      hasOutputExample: false,
+      declaredAmount: (accept?.maxAmountRequired ?? accept?.amount) as string | undefined,
+      network: accept?.network as string | undefined,
+      payTo: accept?.payTo as string | undefined,
+      hasInputExample: Boolean(schema?.input?.body ?? schema?.input?.queryParams),
+      hasOutputExample: schema?.output?.example !== undefined,
     };
   });
 }
