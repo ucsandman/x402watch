@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://x402watch.vercel.app"),
   title: "x402watch · which paid APIs actually answer",
   description:
-    "Every x402 endpoint listed on the Coinbase Bazaar and x402scan, probed unpaid every six hours: reachable, charging what it declares, and how fast.",
+    "Every x402 endpoint listed on the Coinbase Bazaar, PayAI and x402scan, probed unpaid every six hours: reachable, charging what it declares, and how fast.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
