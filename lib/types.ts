@@ -1,4 +1,4 @@
-export type Source = 'bazaar' | 'x402scan';
+export type Source = 'bazaar' | 'payai' | 'x402scan';
 
 export interface Target {
   url: string;
